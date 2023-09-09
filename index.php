@@ -1,6 +1,6 @@
 <?php
 
-$ffi = FFI::cdef("char *merge_pdf(char **files,int len, char *output);", "./libmerge_pdf.so");
+$ffi = FFI::cdef("char *merge_pdf(char **files, int len, char *output);", "./libmerge_pdf.so");
 
 $filesToMerge = [
     './order_confirmation_287.pdf',
