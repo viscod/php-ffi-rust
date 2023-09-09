@@ -1,11 +1,6 @@
 <?php
 
-require_once"./CFFI.php";
-
-use Toknot\CFFI;
-
 $ffi = FFI::cdef("char *merge_pdf(char **files,int len, char *output);", "./libmerge_pdf.so");
-
 
 $filesToMerge = [
     './order_confirmation_287.pdf',
@@ -37,13 +32,13 @@ $arrayData = FFI::new($arrayType, false);
 
 for ($i = 0; $i < count($filesToMerge); $i++) {
     $string = $filesToMerge[$i];
-    $targetPathPtr = CFFI::newCharPtr($string, false);
+    $targetPathPtr = newCharPtr($string, false);
     $arrayData[$i] = $targetPathPtr;
 }
 
-$path = CFFI::newCharPtr('./test.pdf', false);
+$path = newCharPtr('./test.pdf', false);
 
-$resultString = $ffi->merge_pdf($arrayData,count($filesToMerge), $path);
+$resultString = $ffi->merge_pdf($arrayData, count($filesToMerge), $path);
 
 $phpString =FFI::string($resultString);
 
@@ -53,7 +48,30 @@ if ($phpString === FFI::string($path)) {
     echo 'merge failed, message returned: '. $phpString . ' '. PHP_EOL;
 }
 
+// free memory
 
 FFI::free($arrayData);
 FFI::free($targetPathPtr);
 FFI::free($path);
+
+
+// helper methods
+
+function newCharPtr(string $string, $owned = true): FFI\CData
+{
+    $charArr = newCharArray($string, $owned);
+    return FFI::cast('char*', FFI::addr($charArr));
+}
+
+
+function newCharArray(string $string, $owned = true): FFI\CData
+{
+    $len = strlen($string);
+    $charArr = FFI::new("char[$len]", $owned);
+    for ($i = 0; $i < $len; $i++) {
+        $char = FFI::new('char', $owned);
+        $char->cdata = $string[$i];
+        $charArr[$i] = $char;
+    }
+    return $charArr;
+}
