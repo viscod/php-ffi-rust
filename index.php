@@ -32,11 +32,11 @@ $arrayData = FFI::new($arrayType, false);
 
 for ($i = 0; $i < count($filesToMerge); $i++) {
     $string = $filesToMerge[$i];
-    $targetPathPtr = newCharPtr($string, false);
+    $targetPathPtr = toCStringPtr($string, false);
     $arrayData[$i] = $targetPathPtr;
 }
 
-$path = newCharPtr('./test.pdf', false);
+$path = toCStringPtr('./test.pdf', false);
 
 $resultString = $ffi->merge_pdf($arrayData, count($filesToMerge), $path);
 
@@ -55,16 +55,8 @@ FFI::free($targetPathPtr);
 FFI::free($path);
 
 
-// helper methods
-
-function newCharPtr(string $string, $owned = true): FFI\CData
-{
-    $charArr = newCharArray($string, $owned);
-    return FFI::cast('char*', FFI::addr($charArr));
-}
-
-
-function newCharArray(string $string, $owned = true): FFI\CData
+// helper method
+function toCStringPtr(string $string, $owned = true): FFI\CData
 {
     $len = strlen($string);
     $charArr = FFI::new("char[$len]", $owned);
@@ -73,5 +65,5 @@ function newCharArray(string $string, $owned = true): FFI\CData
         $char->cdata = $string[$i];
         $charArr[$i] = $char;
     }
-    return $charArr;
+    return FFI::cast('char*', FFI::addr($charArr));
 }
