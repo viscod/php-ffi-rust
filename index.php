@@ -40,7 +40,7 @@ $path = newCharPtr('./test.pdf', false);
 
 $resultString = $ffi->merge_pdf($arrayData, count($filesToMerge), $path);
 
-$phpString =FFI::string($resultString);
+$phpString = FFI::string($resultString);
 
 if ($phpString === FFI::string($path)) {
     echo 'merge success, file path: '. $phpString.' '. PHP_EOL;
